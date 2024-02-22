@@ -28,12 +28,12 @@ class MACDDataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.labels)
 
-def read_text_label(base_path, lang, split):
+def read_text_label(base_path, lang, split, max_rows):
     
     split_text, split_labels = [], []
     
     print(f"Reading {split} for {lang} from {base_path + f'{lang}_{split}.csv'}")
-    all_data = open(base_path + f'{lang}_{split}.csv').readlines()
+    all_data = open(base_path + f'{lang}_{split}.csv').readlines()[:max_rows]
     for idx, dt in enumerate(all_data):
         if idx == 0:
             continue
@@ -42,19 +42,12 @@ def read_text_label(base_path, lang, split):
         split_labels.append(int(label))
     
     return split_text, split_labels
-    
-def prepare_test_dataset(args, lang, tokenizer):
-    test_text, test_labels = read_text_label(args.base_path, lang, "test")
-    # Encode Dataset
-    test_text = encode_dataset(test_text, None, None, tokenizer, args.max_length, True)
-    test_dataset = MACDDataset(test_text, test_labels)
-    return test_dataset
 
 def prepare_dataset(args, tokenizer):
 
-    train_text, train_labels = read_text_label(args.base_path, args.lang, "train")
-    val_text, val_labels = read_text_label(args.base_path, args.lang, "val")
-    test_text, test_labels = read_text_label(args.base_path, args.lang, "test")
+    train_text, train_labels = read_text_label(args.base_path, args.lang, "train", args.max_train_rows)
+    val_text, val_labels = read_text_label(args.base_path, args.lang, "val", args.max_test_rows)
+    test_text, test_labels = read_text_label(args.base_path, lang, "test", args.max_test_rows)
     
     # Encode Dataset
     train_text, val_text, test_text = encode_dataset(train_text, val_text, test_text, tokenizer, args.max_length)
@@ -180,7 +173,9 @@ if __name__=='__main__':
     parser.add_argument('--num_labels', type = int, default = '2')
     parser.add_argument('--batch_size', type = int, default = '8')
     parser.add_argument('--num_epochs', type = int, default = '15')
-    parser.add_argument('--max_length', type = int, default = '512')
+    parser.add_argument('--max_length', type = int, default = '256')
+    parser.add_argument('--max_train_rows', type = int, default = '50000')
+    parser.add_argument('--max_test_rows', type = int, default = '10000')
     parser.add_argument('--seed', type = int, default = 393)
     parser.add_argument('--base_path', type = str, default = './dataset/')
     parser.add_argument('--model_name', type = str, default = 'xlmr', choices=["muril", "xlmr", "mbert", "abusexlmr"])
