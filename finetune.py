@@ -28,7 +28,7 @@ class MACDDataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.labels)
 
-def read_text_label(base_path, lang, exp, split):
+def read_text_label(base_path, lang, split):
     
     split_text, split_labels = [], []
     
@@ -44,7 +44,7 @@ def read_text_label(base_path, lang, exp, split):
     return split_text, split_labels
     
 def prepare_test_dataset(args, lang, tokenizer):
-    test_text, test_labels = read_text_label(args.base_path, lang, args.exp, "test")
+    test_text, test_labels = read_text_label(args.base_path, lang, "test")
     # Encode Dataset
     test_text = encode_dataset(test_text, None, None, tokenizer, args.max_length, True)
     test_dataset = MACDDataset(test_text, test_labels)
@@ -52,9 +52,9 @@ def prepare_test_dataset(args, lang, tokenizer):
 
 def prepare_dataset(args, tokenizer):
 
-    train_text, train_labels = read_text_label(args.base_path, args.lang, args.exp, "train")
-    val_text, val_labels = read_text_label(args.base_path, args.lang, args.exp, "val")
-    test_text, test_labels = read_text_label(args.base_path, args.lang, args.exp, "test")
+    train_text, train_labels = read_text_label(args.base_path, args.lang, "train")
+    val_text, val_labels = read_text_label(args.base_path, args.lang, "val")
+    test_text, test_labels = read_text_label(args.base_path, args.lang, "test")
     
     # Encode Dataset
     train_text, val_text, test_text = encode_dataset(train_text, val_text, test_text, tokenizer, args.max_length)
@@ -106,7 +106,10 @@ def finetune_model(args):
     else:
         tokenizer = AutoTokenizer.from_pretrained(args.model_checkpoint, use_fast = True)
     model = AutoModelForSequenceClassification.from_pretrained(args.model_checkpoint, num_labels = args.num_labels)
-    model = model.cuda()
+
+    # Move model to GPU if CUDA is available
+    if torch.cuda.is_available() and args.cuda:
+        model = model.cuda()
 
     # Dataset
     train_dataset, val_dataset, test_dataset = prepare_dataset(args, tokenizer)
