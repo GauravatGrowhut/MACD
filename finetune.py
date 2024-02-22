@@ -47,7 +47,7 @@ def prepare_dataset(args, tokenizer):
 
     train_text, train_labels = read_text_label(args.base_path, args.lang, "train", args.max_train_rows)
     val_text, val_labels = read_text_label(args.base_path, args.lang, "val", args.max_test_rows)
-    test_text, test_labels = read_text_label(args.base_path, lang, "test", args.max_test_rows)
+    test_text, test_labels = read_text_label(args.base_path, args.lang, "test", args.max_test_rows)
     
     # Encode Dataset
     train_text, val_text, test_text = encode_dataset(train_text, val_text, test_text, tokenizer, args.max_length)
