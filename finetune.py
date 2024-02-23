@@ -160,7 +160,7 @@ def get_model(args):
     elif args.model_name == "xlmr":
         return "xlm-roberta-base"
     elif args.model_name == "abusexlmr":
-        return "path/to/abuseXLMR"
+        return "sarathsomana/abusexlmr"
     else:
         print("Model not supported")
         os.out()
