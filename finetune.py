@@ -118,7 +118,7 @@ def finetune_model(args):
         weight_decay = 0.01,
         load_best_model_at_end = True,
         metric_for_best_model = 'f1_macro',
-        report_to=None
+        report_to="none"
     )
 
     trainer = Trainer(
